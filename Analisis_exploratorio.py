@@ -1,66 +1,52 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Primero se carga los archivos de excel con la fila 4 
+# Cargar los datos con la fila 4 como encabezado
 data = pd.read_excel('C:/Users/diego/Desktop/PROYECTO_MINERIA/PROYECTOFINAL/PERU_SINIESTROS.xlsx', header=3)
 
-# Aqui lo que se hacees que se limpia los nombres de las columnas  
+# Limpiar los nombres de las columnas
 data.columns = data.columns.str.strip()
 
-# Aqui vemos los primeros 10 registros para verificar la carga de los datos
-# Luego mostramos las primeras 10 filas para tener una idea general de cómo se cargaron los datos
+# Mostrar las primeras 10 filas para verificar que los datos se han cargado correctamente
 print("Primeras filas del archivo:")
 print(data.head(10))
 
-# Verificamos los nombres de las columnas
-# Este paso permite verificar que los nombres de las columnas están correctamente cargados  para que no tengamos errores en los sigguiente analisis
-print("\nNombres de las columnas:")
-print(data.columns)
+# Descripción de los datos
+num_filas, num_columns = data.shape
+print(f"Cantidad de Filas: {num_filas}")
+print(f"Cantidad de Columnas: {num_columns}")
 
-# Aqui vamos a ver la distribucion de los accidentes de transito
-# aqui vamos analisar cuantos accidentes de transito ocurrieron por cada categoria
-gravedad_counts = data['GRAVEDAD'].value_counts()
-print("Distribución de la gravedad de los accidentes:")
-print(gravedad_counts)
+# Descripción general de las variables, tipos de datos, y valores únicos
+print("\nInformación general de la Data:")
+data.info()
 
-# Aqui vamos a ver la la distribución de la gravedad de los accidentes
-# Aquí se genera un gráfico de barras para visualizar cuántos accidentes ocurrieron en cada categoría de gravedad
-gravedad_counts.plot(kind='bar', title='Distribución de la gravedad de los accidentes')
-plt.xlabel('Gravedad')
-plt.ylabel('Número de accidentes')
-plt.xticks(rotation=45)
-plt.show()
+# Mostrar los tipos de datos de las columnas
+print("\nTipos de valores por columna:")
+data.dtypes
 
-# Accidentes por departamento
-# Aqui vamos a ver cuántos accidentes ocurrieron en cada departamento
-dept_counts = data['DEPARTAMENTO'].value_counts()
-print("\nAccidentes por departamento:")
-print(dept_counts)
+# Mostrar las columnas de tipo categórico
+print("\nColumnas de tipo categóricas:")
+data.select_dtypes(include=['object']).columns
 
-# Visualizar los accidentes por departamento
-# Aqui vamos a vercuántos accidentes ocurrieron en cada departamento en  un grafico de barras
-dept_counts.plot(kind='bar', title='Accidentes por departamento')
-plt.xlabel('Departamento')
-plt.ylabel('Número de accidentes')
-plt.xticks(rotation=45)
-plt.show()
+# Distribución de la gravedad de los accidentes
+columna_letalidad = 'GRAVEDAD'
+if columna_letalidad in data.columns:
+    print(f"\n--- Distribución de la Gravedad/Letalidad ({columna_letalidad}) ---")
+    gravedad_counts = data[columna_letalidad].value_counts(dropna=False)
+    print(gravedad_counts)
 
-# Accidentes por mes
-# En este paso, se analiza la cantidad de accidentes ocurridos en cada mes
-mes_counts = data['MES'].value_counts()
-print("\nAccidentes por mes:")
-print(mes_counts)
+    # Visualizar la distribución de la gravedad en un gráfico de barras
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=gravedad_counts.index, y=gravedad_counts.values, palette='Reds_d')
+    plt.title(f'Distribución de la Gravedad de Accidentes ({columna_letalidad})', fontsize=16)
+    plt.xlabel('Gravedad/Tipo de Daño', fontsize=14)
+    plt.ylabel('Número de Accidentes', fontsize=14)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.show()
 
-# Visualizar los accidentes por mes
-# Este gráfico de barras muestra cuántos accidentes ocurrieron en cada mes
-mes_counts.plot(kind='bar', title='Accidentes por mes')
-plt.xlabel('Mes')
-plt.ylabel('Número de accidentes')
-plt.xticks(rotation=45)
-plt.show()
-
-# Verificar los nombres de las columnas nuevamente para asegurarnos de que todo esté correcto
-# Al final, se verifica que los nombres de las columnas sean correctos
-print("\nNombres finales de las columnas:")
-print(data.columns)
-
+    # Calcular porcentaje de cada categoría de gravedad
+    gravedad_percentage = data[columna_letalidad].value_counts(normalize=True).mul(100).round(2)
+    print(f"\nPorcentaje de cada categoría en '{columna_letalidad}':")
+    print(gravedad_percentage)
